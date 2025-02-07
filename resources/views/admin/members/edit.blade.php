@@ -21,10 +21,10 @@
             <input type="tel" class="form-control" id="phone" name="phone" value="{{ old('phone', $member->phone) }}">
         </div>
 
-        <div class="form-group">
+        {{-- <div class="form-group">
             <label for="address">Address</label>
             <textarea class="form-control" id="address" name="address" rows="3">{{ old('address', $member->address) }}</textarea>
-        </div>
+        </div> --}}
 
         <div class="form-group">
             <label for="status">Status</label>

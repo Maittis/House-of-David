@@ -11,16 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('members', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('mobile_number')->unique();
-            $table->date('last_attendance')->nullable();
-            $table->dateTime('last_attendance')->nullable();
-            // $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -28,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('members');
+        Schema::dropIfExists('comments');
     }
 };

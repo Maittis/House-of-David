@@ -93,7 +93,7 @@
         </div>
 
         <!-- Posts Section -->
-        <div class="container mx-auto px-6 py-12">
+        {{-- <div class="container mx-auto px-6 py-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($posts as $post)
                 <div class="post-card p-6">
@@ -105,16 +105,16 @@
                     <a href="{{ route('post.show', $post->id) }}" class="text-red-500 font-semibold hover:text-red-700">Read More →</a>
                 </div>
                 @endforeach
-            </div>
+            </div> --}}
 
 
 
 
             <!-- Pagination -->
-            <div class="mt-8 flex justify-center">
+            {{-- <div class="mt-8 flex justify-center">
                 {{ $posts->links('pagination::tailwind') }}
             </div>
-        </div>
+        </div> --}}
 
         <!-- Footer -->
         <footer class="bg-gray-800 text-gray-200 py-6 mt-12">

@@ -187,15 +187,12 @@
     @php
         $service = $services->first(); // or select a specific service if needed
     @endphp
-    <!-- Absent Members Card -->
     <div class="col-md-3">
         <div class="card text-center">
             <div class="card-body">
-                <h5 class="card-title">Absent Members for {{ $service->name ?? 'sunday ' }}</h5>
+                <h5 class="card-title">Absent Members for {{ $service->name ?? 'sunday service' }}</h5>
                 <p class="card-text display-4">{{ $absentToday ?? 0 }}</p>
                 <p class="card-text text-warning">Needs follow-up</p>
-
-                <!-- Add the link, ensure $service->id exists -->
                 <a href="{{ isset($service) ? route('admin.absent.members.for.service', ['serviceId' => $service->id]) : '#' }}" class="btn btn-warning">
                     View Absent Members
                 </a>
@@ -203,7 +200,6 @@
         </div>
     </div>
 @else
-    <!-- Optional: Show a message if no services are available -->
     <div class="col-md-3">
         <div class="alert alert-info text-center">
             No services available to display attendance for.
@@ -214,11 +210,9 @@
 
 
 
-
-
         <!-- New Members Card -->
         <div class="col-md-3">
-            <div class="card text-center">
+            <div class="card text-center clickable-card" onclick="location.href='{{ route('admin.new-members') }}'">
                 <div class="card-body">
                     <h5 class="card-title">New Members</h5>
                     <p class="card-text display-4">{{ $newMembersThisMonth }}</p>
@@ -268,6 +262,63 @@
 
 
 
+    {{-- <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Send Inspirational Message</h5>
+                    <form action="{{ route('admin.get-latest-inspiration') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="3" placeholder="Write your message here..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+
+
+
+    {{-- <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Send Inspirational Message</h5>
+                    <form action="{{ route('admin.send-inspiration') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="3" placeholder="Write your message here..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+
+    {{-- <!-- Display recent messages -->
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Inspirational Messages</h5>
+                    <ul class="list-group">
+                        @foreach($inspirationalMessages as $message)
+                            <li class="list-group-item">
+                                <strong>{{ $message->created_at->format('d M Y') }}</strong>: {{ $message->content }}
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+
+
 
     <!-- Modal for Adding Member -->
     <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
@@ -288,12 +339,17 @@
                             <label for="mobile_number" class="form-label">Mobile Number</label>
                             <input type="text" class="form-control" id="mobile_number" name="mobile_number" placeholder="Enter mobile number" required>
                         </div>
+                        {{-- <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter member's email" required>
+                        </div> --}}
                         <button type="submit" class="btn btn-primary">Add Member</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
 
 
 @endsection

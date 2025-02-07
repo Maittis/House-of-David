@@ -7,9 +7,39 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 class RouteServiceProvider extends ServiceProvider
 {
+
+    public function index(){
+
+
+        if(Auth::id())
+        {
+
+            $usertype=Auth()->user()->usertype;
+
+            if ($usertype== 'user'){
+
+                return view ('dasboard');
+            }
+
+            else if($usertype=='admin'){
+
+                return view('admin.dashboard');
+            }
+
+                else{
+
+                    return redirect()->back();
+                }
+        }
+
+
+
+    }
+
     /**
      * The path to your application's "home" route.
      *

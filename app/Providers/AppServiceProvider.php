@@ -11,10 +11,9 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
+    public function register()
     {
-        // Bind the TwilioSMSService to the container
-        $this->app->bind(TwilioSMSService::class, function ($app) {
+        $this->app->singleton(TwilioSMSService::class, function ($app) {
             return new TwilioSMSService();
         });
     }

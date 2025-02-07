@@ -8,17 +8,27 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     */
+      */
+    // public function up()
+    // {
+    //     Schema::create('sms_replies', function (Blueprint $table) {
+    //         $table->id();
+    //         $table->foreignId('member_id')->constrained()->onDelete('cascade'); // Link reply to the member
+    //         $table->string('reply_message', 160); // Member's reply message
+    //         $table->timestamps();
+    //     });
+    // }
+
     public function up()
     {
         Schema::create('sms_replies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('member_id')->constrained()->onDelete('cascade'); // Link reply to the member
-            $table->string('reply_message', 160); // Member's reply message
+            $table->string('phone');
+            $table->text('message');
             $table->timestamps();
         });
     }
-    /**
+       /**
      * Reverse the migrations.
      */
     public function down(): void
@@ -26,3 +36,9 @@ return new class extends Migration
         Schema::dropIfExists('sms_replies');
     }
 };
+
+
+
+
+
+

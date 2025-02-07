@@ -53,8 +53,14 @@
                 <li class="nav-item">
                     <a class="nav-link text-primary fw-semibold" href="{{ route('admin.attendance.index') }}">Attendance</a>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link text-primary fw-semibold" href="{{ route('admin.attendance.absent') }}">Absent Members</a>
+                </li> --}}
+                <li class="nav-item">
+                    <a class="nav-link text-primary fw-semibold" href="{{ route('admin.inquiries') }}">Inquiries</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('admin.inspirational_messages') }}">Inspirational Messages</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-primary fw-semibold" href="{{ route('admin.followup.index') }}">Follow Up Team</a>

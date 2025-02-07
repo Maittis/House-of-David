@@ -11,24 +11,39 @@ use App\Services\TwilioSMSService;
 use Illuminate\Support\Facades\Log;
 use App\Models\SmsReply;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use App\Models\InspirationalMessage;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Inquiry;
+use App\Models\InquiryReply;
+
+
 
 class AdminController extends Controller
 {
 
+    use HasRoles;
 
 
-    protected $twilioSMSService;
 
-    // Inject the TwilioSMSService
-    public function __construct(TwilioSMSService $twilioSMSService)
-    {
-        $this->twilioSMSService = $twilioSMSService;
-    }
+    // protected $twilioSMSService;
+
+    // public function __construct(TwilioSMSService $twilioSMSService)
+    // {
+    //     $this->twilioSMSService = $twilioSMSService;
+    // }
 
 
 
     public function dashboard()
     {
+
+
+        $inspirationalMessages = InspirationalMessage::latest()->take(5)->get();
+
+
+
         // Count total members
         $totalMembers = Member::count();
 
@@ -73,9 +88,12 @@ class AdminController extends Controller
         // Fetch all services (if needed for other parts of the dashboard)
         $services = Service::all();
 
+
+
         // Pass the data to the view
         return view('admin.dashboard', compact(
             'totalMembers',
+            'inspirationalMessages',
             'presentToday',
             'absentToday',
             'newMembersThisMonth',
@@ -114,6 +132,20 @@ class AdminController extends Controller
 
 
 
+    // public function storeMember(Request $request)
+    // {
+    //     $validatedData = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         // 'email' => 'required|string|email|max:255',
+    //         'mobile_number' => 'required|unique:members,mobile_number'
+
+    //     ]);
+
+    //     Member::create($validatedData);
+
+    //     return redirect()->route('admin.dashboard')->with('success', 'Member created successfully.');
+    // }
+
     public function storeMember(Request $request)
     {
         $validatedData = $request->validate([
@@ -123,11 +155,9 @@ class AdminController extends Controller
 
         Member::create($validatedData);
 
+
         return redirect()->route('admin.dashboard')->with('success', 'Member created successfully.');
     }
-
-
-
 
 
 
@@ -146,18 +176,35 @@ class AdminController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:members,email,' . $member->id,
+            // 'email' => 'required|email|unique:members,email,' . $member->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
+            // 'status' => 'required|in:active,inactive',
         ]);
+
 
         $member->update($validatedData);
 
         return redirect()->route('admin.members.index')->with('success', 'Member updated successfully.');
     }
 
+    // public function updateMember(Request $request, $id)
+    // {
+    //     $member = Member::findOrFail($id);
 
+    //     $validatedData = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         // 'email' => 'required|email|unique:members,email,' . $member->id,
+    //         'phone' => 'nullable|string|max:20',
+    //         'address' => 'nullable|string',
+    //         // 'status' => 'required|in:active,inactive',  // Uncomment and include this validation
+    //     ]);
+
+    //     // Explicitly set status to ensure it's always updated
+    //     $member->update(array_merge($validatedData, ['status' => $request->input('status', 'active')]));
+
+    //     return redirect()->route('admin.members.index')->with('success', 'Member updated successfully.');
+    // }
 
 
 
@@ -171,63 +218,52 @@ class AdminController extends Controller
 
 
 
-
-    // public function recordAttendance(Request $request)
+    // public function store(Request $request)
     // {
-    //     // Validate the request
-    //     $request->validate([
-    //         'member_id' => 'required|exists:members,id',
-    //         'service_id' => 'required|exists:services,id',
-    //         'date' => 'required|date',
+    //     $  $validatedData = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         // 'email' => 'required|email|unique:members,email',
+    //         'phone' => 'nullable|string|max:20',
+    //         'address' => 'nullable|string',
     //     ]);
 
-    //     // Check if the attendance for this member, service, and date already exists
-    //     $existingAttendance = Attendance::where('member_id', $request->member_id)
-    //         ->where('service_id', $request->service_id)
-    //         ->whereDate('date', $request->date)
-    //         ->first();
-
-    //     if ($existingAttendance) {
-    //         return redirect()->back()->with('error', 'Attendance already recorded for this member on this date.');
-    //     }
-
-    //     // Create the attendance record
+    //     // Mark attendance
     //     Attendance::create([
-    //         'member_id' => $request->member_id,
-    //         'service_id' => $request->service_id,
-    //         'date' => $request->date,
+    //         'member_id' => $request->input('member_id'),
+    //         'service_id' => $request->input('service_id'),
+    //         'date' => now(),
     //     ]);
 
-    //     return redirect()->back()->with('success', 'Attendance recorded successfully!');
+    //     // Update last attendance for the member
+    //     $member = Member::find($request->input('member_id'));
+    //     $member->last_attendance = now();
+    //     $member->save();
+
+    //     return redirect()->route('admin.attendance.index')->with('success', 'Attendance marked successfully.');
     // }
 
-
-
-
-
-
-
-
-    public function store(Request $request)
+    public function storeAttendance(Request $request)
     {
         $request->validate([
-            'member_id' => 'required|exists:members,id',
+            'member_ids' => 'required|array|min:1', // Ensure at least one member is selected
+            'member_ids.*' => 'exists:members,id',
             'service_id' => 'required|exists:services,id',
         ]);
 
-        // Mark attendance
-        Attendance::create([
-            'member_id' => $request->input('member_id'),
-            'service_id' => $request->input('service_id'),
-            'date' => now(),
-        ]);
+        // Process each selected member
+        foreach ($request->input('member_ids') as $member_id) {
+            Attendance::create([
+                'member_id' => $member_id,
+                'service_id' => $request->input('service_id'),
+                'date' => now(),
+            ]);
 
-        // Update last attendance for the member
-        $member = Member::find($request->input('member_id'));
-        $member->last_attendance = now();
-        $member->save();
+            $member = Member::find($member_id);
+            $member->last_attendance = now();
+            $member->save();
+        }
 
-        return redirect()->route('admin.attendance.index')->with('success', 'Attendance marked successfully.');
+        return redirect()->route('admin.attendance.index')->with('success', 'Attendance marked successfully for selected members.');
     }
 
 
@@ -237,24 +273,6 @@ class AdminController extends Controller
 
 
 
-
-
-    // public function showAttendanceForm(Request $request)
-    // {
-    //     // Get the search term from the request, default to an empty string if not provided
-    //     $search = $request->input('search', '');
-
-    //     // Query members based on the search term
-    //     $members = Member::where(function ($query) use ($search) {
-    //         $query->where('name', 'LIKE', "%{$search}%")
-    //               ->orWhere('mobile_number', 'LIKE', "%{$search}%");
-    //     })->paginate(10);
-
-    //     // Fetch all services for selection
-    //     $services = Service::all();
-
-    //     return view('admin.attendance.list', compact('services', 'members', 'search'));
-    // }
 
     public function index()
     {
@@ -283,8 +301,8 @@ class AdminController extends Controller
             : collect();
 
         // Fetch all members for the attendance marking form
-        $members = Member::all();
-
+        // $members = Member::all();
+        $members = Member::orderBy('name')->paginate(25);
         // Pass data to the view
         return view('admin.attendance.index', compact(
             'defaultService',
@@ -296,36 +314,36 @@ class AdminController extends Controller
 
 
 
+    // public function absentMembers()
+    // {
+    //     $defaultService = Service::first();
 
+    //     // Fetch absent members for the default service with pagination (10 per page)
+    //     $absentMembers = $defaultService
+    //         ? Member::whereDoesntHave('attendances', function ($query) use ($defaultService) {
+    //             $query->where('service_id', $defaultService->id)
+    //                 ->whereDate('date', today());
+    //         })->paginate(10) // Apply pagination
+    //         : collect(); // If no service exists, return an empty collection
 
-
-
-
-
-
+    //     return view('admin.attendance.absent', compact('defaultService', 'absentMembers'));
+    // }
 
 
     public function absentMembers()
     {
         $defaultService = Service::first();
 
-        // Fetch absent members for the default service
+        // Fetch absent members for the default service with pagination
         $absentMembers = $defaultService
             ? Member::whereDoesntHave('attendances', function ($query) use ($defaultService) {
                 $query->where('service_id', $defaultService->id)
                     ->whereDate('date', today());
-            })->get()
+            })->paginate(10) // Set to 10 items per page
             : collect();
 
         return view('admin.attendance.absent', compact('defaultService', 'absentMembers'));
     }
-
-
-
-
-
-
-
 
 
 
@@ -340,13 +358,6 @@ class AdminController extends Controller
 
         return view('admin.attendance.absent', compact('service', 'absentMembers'));
     }
-
-
-
-
-
-
-
 
 
 
@@ -406,121 +417,39 @@ public function viewAbsentMembersForService($serviceId)
 }
 
 
-
-
-
-
-
-
-
-
 // public function sendSms(Request $request)
-// {
-//     // Twilio configuration
-//     $sid = env('TWILIO_SID');
-//     $token = env('TWILIO_TOKEN');
-//     $from = env('TWILIO_FROM');
-//     $client = new Client($sid, $token);
+//     {
+//         if ($request->has('member_id')) {
+//             $member = Member::findOrFail($request->input('member_id'));
+//             $message = "Dear {$member->name}, we noticed you missed today's service. We hope to see you soon!";
 
-//     if ($request->has('member_id')) {
-//         // Send SMS to a specific member
-//         $member = Member::findOrFail($request->input('member_id'));
-
-//         // Default message for individual SMS
-//         $message = "Dear {$member->name}, we noticed you missed today's service. We hope to see you soon!";
-
-//         try {
-//             // Send SMS
-//             $client->messages->create($member->mobile_number, [
-//                 'from' => $from,
-//                 'body' => $message,
-//             ]);
-//             Log::info("SMS sent to {$member->mobile_number}: {$message}");
-//         } catch (\Exception $e) {
-//             Log::error("Failed to send SMS to {$member->mobile_number}: {$e->getMessage()}");
-//             return redirect()->back()->with('error', 'Failed to send SMS to the member.');
-//         }
-
-//         return redirect()->route('admin.attendance.index')->with('success', 'SMS sent successfully to the member!');
-//     } elseif ($request->has('sms_message')) {
-//         // Send SMS to all absent members
-//         $request->validate([
-//             'sms_message' => 'required|string|max:160', // Validate custom message
-//         ]);
-
-//         $defaultService = Service::first();
-
-//         if (!$defaultService) {
-//             return redirect()->back()->with('error', 'No default service found to determine absent members.');
-//         }
-
-//         // Fetch absent members for the default service
-//         $absentMembers = Member::whereDoesntHave('attendances', function ($query) use ($defaultService) {
-//             $query->where('service_id', $defaultService->id)
-//                   ->whereDate('date', today());
-//         })->get();
-
-//         foreach ($absentMembers as $member) {
-//             try {
-//                 // Send SMS
-//                 $client->messages->create($member->mobile_number, [
-//                     'from' => $from,
-//                     'body' => $request->sms_message,
-//                 ]);
-//                 Log::info("SMS sent to {$member->mobile_number}: {$request->sms_message}");
-//             } catch (\Exception $e) {
-//                 Log::error("Failed to send SMS to {$member->mobile_number}: {$e->getMessage()}");
+//             if ($this->twilioSMSService->twiliosendSms($member->mobile_number, $message)) {
+//                 return redirect()->route('admin.attendance.index')->with('success', 'SMS sent successfully!');
 //             }
+//             return redirect()->back()->with('error', 'Failed to send SMS.');
 //         }
 
-//         return redirect()->route('admin.attendance.absent')->with('success', 'SMS sent successfully to all absent members!');
+//         if ($request->has('sms_message')) {
+//             $request->validate(['sms_message' => 'required|string|max:160']);
+
+//             $defaultService = Service::first();
+//             if (!$defaultService) {
+//                 return redirect()->back()->with('error', 'No default service found.');
+//             }
+
+//             $absentMembers = Member::whereDoesntHave('attendances', function ($query) use ($defaultService) {
+//                 $query->where('service_id', $defaultService->id)->whereDate('date', today());
+//             })->get();
+
+//             foreach ($absentMembers as $member) {
+//                 $this->twilioSMSService->twiliosendSms($member->mobile_number, $request->sms_message);
+//             }
+
+//             return redirect()->route('admin.attendance.absent')->with('success', 'SMS sent to absent members!');
+//         }
+
+//         return redirect()->back()->with('error', 'No valid data provided for SMS.');
 //     }
-
-//     // If no valid input is provided, redirect back with an error
-//     return redirect()->back()->with('error', 'No valid data provided for sending SMS.');
-// }
-
-
-
-
-
-
-
-
-
-// public function sendSms(Request $request)
-// {
-//     // Twilio credentials from the .env file
-//     $sid = env('TWILIO_SID');
-//     $token = env('TWILIO_TOKEN');
-//     $from = env('TWILIO_FROM');
-//     $client = new Client($sid, $token);
-
-//     try {
-//         // Test phone number and message
-//         $to = '+260976652858'; // Replace with the recipient's phone number
-//         $message = "Hello, this is a test message from Twilio.";
-
-//         // Send SMS
-//         $client->messages->create($to, [
-//             'from' => $from,
-//             'body' => $message,
-//         ]);
-
-//         // Log success
-//         Log::info("Test SMS sent to {$to}: {$message}");
-
-//         return response()->json(['success' => 'SMS sent successfully!']);
-//     } catch (\Exception $e) {
-//         // Log error
-//         Log::error("Failed to send SMS: {$e->getMessage()}");
-
-//         return response()->json(['error' => 'Failed to send SMS. Check the logs for more details.']);
-//     }
-// }
-
-
-
 
 
 
@@ -541,77 +470,27 @@ public function viewAbsentMembersForService($serviceId)
         $reply = SmsReply::findOrFail($id);
         $member = $reply->member;
 
-        // Twilio SMS sending logic
-        $sid = env('TWILIO_SID');
-        $token = env('TWILIO_TOKEN');
-        $from = env('TWILIO_FROM');
-        $client = new \Twilio\Rest\Client($sid, $token);
+        // // Twilio SMS sending logic
+        // $sid = env('TWILIO_SID');
+        // $token = env('TWILIO_TOKEN');
+        // $from = env('TWILIO_FROM');
+        // $client = new \Twilio\Rest\Client($sid, $token);
 
-        try {
-            $client->messages->create($member->mobile_number, [
-                'from' => $from,
-                'body' => $request->followup_message,
-            ]);
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to send follow-up SMS.');
-        }
+        // try {
+        //     $client->messages->create($member->mobile_number, [
+        //         'from' => $from,
+        //         'body' => $request->followup_message,
+        //     ]);
+        // } catch (\Exception $e) {
+        //     return redirect()->back()->with('error', 'Failed to send follow-up SMS.');
+        // }
+
+            $replies = DB::table('sms_replies')->orderBy('created_at', 'desc')->get();
+            return response()->json($replies);
+
 
         return redirect()->route('admin.followup.index')->with('success', 'Follow-up SMS sent successfully!');
     }
-
-
-
-
-
-
-// public function sendSMStoAbsentMembersForService(TwilioSMSService $twilioSMSService, Request $request, $serviceId)
-// {
-//     // Validate input
-//     $request->validate([
-//         'message' => 'required|string|max:160', // Limit to 160 characters
-//         'members' => 'required|array',          // Ensure 'members' is an array
-//     ]);
-
-//     // Fetch selected members
-//     $members = Member::whereIn('id', $request->members)->get();
-
-//     if ($members->isEmpty()) {
-//         return redirect()->route('admin.dashboard')->with('error', 'No members selected for SMS.');
-//     }
-
-//     $message = $request->message;
-
-//     // Keep track of successes and failures
-//     $successCount = 0;
-//     $failureCount = 0;
-
-//     foreach ($members as $member) {
-//         try {
-//             // Send SMS via TwilioSMSService
-//             $twilioSMSService->sendSMS([$member->mobile_number], $message);
-//             Log::info("SMS sent to {$member->mobile_number}");
-//             $successCount++;
-//         } catch (\Exception $e) {
-//             Log::error("Failed to send SMS to {$member->mobile_number}: " . $e->getMessage());
-//             $failureCount++;
-//         }
-//     }
-
-//     // Check if there were any failures
-//     if ($failureCount > 0) {
-//         $message = "{$successCount} SMS sent successfully. {$failureCount} SMS failed to send.";
-//         return redirect()->route('admin.dashboard')
-//             ->with('success', $message)
-//             ->with('error', 'Some SMS messages failed to send. Check logs for details.');
-//     } else {
-//         // Redirect back with a success message if all messages were sent successfully
-//         return redirect()->route('admin.dashboard')
-//             ->with('success', "{$successCount} SMS sent successfully.");
-//     }
-// }
-
-
-
 
 
 
@@ -675,25 +554,73 @@ public function storeReply(Request $request)
 
 
 
-// public function twiliosendSms($to, $message)
+public function newMembers()
+{
+    // Fetch members created within the last month
+    $newMembers = Member::where('created_at', '>=', now()->subMonth())
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+    return view('admin.new-members', compact('newMembers'));
+}
+
+public function sendWelcomeMessage($id)
+{
+    $member = Member::findOrFail($id);
+    $message = "Welcome, {$member->name}! We're glad you joined us. We encourage you to attend our next service. Here's a link: [Service Details]";
+    // Replace [Service Details] with actual service information or link.
+
+    // Assuming you have a WhatsApp API or similar service integrated. If not, you might need to set this up.
+    // Here's a placeholder for sending a message via WhatsApp:
+    $whatsappUrl = "https://wa.me/{$member->mobile_number}?text=" . urlencode($message);
+
+    // Log or store this action if necessary
+    Log::info("Welcome message sent to member {$member->name}");
+
+    // Redirect back with a message or open WhatsApp in a new tab
+    return redirect()->back()->with('success', 'Welcome message sent to ' . $member->name . ' via WhatsApp.');
+}
+
+
+
+    public function showInquiries()
+    {
+        $inquiries = Inquiry::latest()->get();
+
+        return view('admin.inquiries', compact('inquiries'));
+    }
+
+
+
+
+    public function replyInquiry(Request $request, $id)
+{
+    $request->validate([
+        'reply' => 'required|string|max:1000',
+    ]);
+
+    InquiryReply::create([
+        'inquiry_id' => $id,
+        'reply' => $request->reply,
+    ]);
+
+    return redirect()->back()->with('success', 'Reply sent successfully.');
+}
+
+
+
+// public function sendInspiration(Request $request)
 // {
-//     try {
-//         $sid = env('TWILIO_SID');
-//         $token = env('TWILIO_TOKEN');
-//         $from = env('TWILIO_FROM');
+//     $request->validate([
+//         'message' => 'required|string',
+//     ]);
 
-//         $client = new \Twilio\Rest\Client($sid, $token);
+//     InspirationalMessage::create([
+//         'content' => $request->message,
+//     ]);
 
-//         $client->messages->create($to, [
-//             'from' => $from,
-//             'body' => $message,
-//         ]);
-
-//         return true;
-//     } catch (\Exception $e) {
-//         Log::error('Error sending SMS to ' . $to . ': ' . $e->getMessage());
-//         return false;
-//     }
+//     // Redirect back with a success message
+//     return redirect()->back()->with('success', 'Message sent successfully!');
 // }
 
 
@@ -704,5 +631,17 @@ public function storeReply(Request $request)
 
 
 
+
 }
+
+
+
+
+
+
+
+
+
+
+
 

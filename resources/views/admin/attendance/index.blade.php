@@ -12,35 +12,65 @@
         <div class="card-body">
             <form action="{{ route('admin.attendance.store') }}" method="POST">
                 @csrf
-                <div class="form-group mb-3">
-                    <label for="member_id" class="form-label">Select Member:</label>
-                    <select name="member_id" id="member_id" class="form-select" required>
-                        <option value="">-- Select Member --</option>
+                <form action="{{ route('admin.attendance.store') }}" method="POST">
+                    @csrf
+                    <div class="form-group mb-3">
+                        <label for="member_search" class="form-label">Search Member:</label>
+                        <input type="text" class="form-control" id="member_search" placeholder="Search for member...">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Select Members:</label>
                         @foreach ($members as $member)
-                            <option value="{{ $member->id }}">{{ $member->name }}</option>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="member_ids[]" value="{{ $member->id }}">
+                                <label class="form-check-label" for="member_{{ $member->id }}">{{ $member->name }}</label>
+                            </div>
                         @endforeach
-                    </select>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="service_id" class="form-label">Service:</label>
+                        <select name="service_id" id="service_id" class="form-select" required>
+                            <option value="{{ $defaultService->id }}" selected>{{ $defaultService->name }}</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Mark Attendance</button>
+                </form>
+
+                <div class="d-flex justify-content-center mt-3">
+                    {{ $members->links() }}
                 </div>
 
-                <div class="form-group mb-4">
-                    <label for="service_id" class="form-label">Service:</label>
-                    <select name="service_id" id="service_id" class="form-select" required>
-                        <option value="{{ $defaultService->id }}" selected>{{ $defaultService->name }}</option>
-                    </select>
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var searchInput = document.getElementById('member_search');
+                        var checkboxes = document.querySelectorAll('.form-check-input');
 
-                <button type="submit" class="btn btn-primary w-100">Mark Attendance</button>
-            </form>
+                        searchInput.addEventListener('input', function() {
+                            var filter = searchInput.value.toLowerCase();
+                            Array.from(checkboxes).forEach(function(checkbox) {
+                                var label = checkbox.nextElementSibling;
+                                if (label.textContent.toLowerCase().includes(filter)) {
+                                    checkbox.parentElement.style.display = "";
+                                } else {
+                                    checkbox.parentElement.style.display = "none";
+                                }
+                            });
+                        });
+                    });
+                </script>
         </div>
     </div>
 
     {{-- Present Members --}}
-    {{-- <form method="GET" action="{{ route('admin.attendance.index') }}" class="mb-3">
+    <form method="GET" action="{{ route('admin.attendance.index') }}" class="mb-3">
         <div class="input-group">
             <input type="text" name="search" class="form-control" placeholder="Search members by name..." value="{{ request('search') }}">
             <button type="submit" class="btn btn-primary">Search</button>
         </div>
-    </form> --}}
+    </form>
 
 <div class="card mb-5 shadow-sm">
     <div class="card-header bg-success text-white">
@@ -55,6 +85,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Mobile Number</th>
+                        <td>Email</td>
                     </tr>
                 </thead>
                 <tbody>
