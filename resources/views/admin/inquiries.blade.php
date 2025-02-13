@@ -16,6 +16,7 @@
                 <th>Message</th>
                 <th>Date</th>
                 <th>Reply</th>
+                <th>Action</th> <!-- New column for action -->
             </tr>
         </thead>
         <tbody>
@@ -33,14 +34,22 @@
                             <button type="submit" class="btn btn-primary btn-sm mt-2">Send Reply</button>
                         </form>
                     </td>
+                    <td>
+                        <form action="{{ route('admin.deleteInquiry', $inquiry->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this inquiry?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+
+
                 </tr>
             @empty
                 <tr>
-                    <td colspan="3" class="text-center text-muted">No inquiries available.</td>
+                    <td colspan="4" class="text-center text-muted">No inquiries available.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 </div>
 @endsection
-

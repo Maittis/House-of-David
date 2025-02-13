@@ -79,7 +79,10 @@
                 {{-- <a href="{{ route('memberArea.services') }}">Services</a>
                 <a href="{{ route('memberArea.messages') }}">Messages</a>
                 <a href="{{ route('memberArea.profile') }}">Profile</a> --}}
-                <a href="{{ route('logout') }}">Logout</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit">Logout</button>
+                </form>
             </div>
         </nav>
     </header>

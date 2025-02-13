@@ -3,16 +3,35 @@
 
 
 <style>
-    :root {
-      --primary: #4CAF50;  /* Green for success/positive actions */
-      --secondary: #2196F3; /* Blue for secondary actions */
-      --danger: #f44336;   /* Red for delete/cancel/destructive actions */
+      :root {
+      --primary: #4CAF50;
+      --secondary: #2196F3;
+      --danger: #f44336;
       --dark: #333;
       --light: #f4f4f4;
+      --text-color: #333;
+      --bg-color: #fff;
+      --card-bg: #fff;
       --card-shadow: rgba(0, 0, 0, 0.1);
     }
 
+
+    [data-theme="dark"] {
+      --primary: #45a049;
+      --secondary: #1e88e5;
+      --danger: #e53935;
+      --dark: #f4f4f4;
+      --light: #333;
+      --text-color: #f4f4f4;
+      --bg-color: #222;
+      --card-bg: #333;
+      --card-shadow: rgba(255, 255, 255, 0.1);
+    }
+
     body {
+
+        background: var(--bg-color);
+      color: var(--text-color);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
       margin: 0;
@@ -140,6 +159,7 @@
     }
 
     .card {
+        background: var(--card-bg);
       background: white;
       padding: 25px;
       border-radius: 12px;
@@ -154,10 +174,79 @@
     }
 
     /* Rest of the CSS remains the same or slightly adjusted for visual consistency */
+
+
+    .theme-switch-wrapper {
+        display: flex;
+        align-items: center;
+    }
+
+    .theme-switch {
+        display: inline-block;
+        height: 34px;
+        position: relative;
+        width: 60px;
+    }
+
+    .theme-switch input {
+        display: none;
+    }
+
+    .slider {
+        background-color: #ccc;
+        bottom: 0;
+        cursor: pointer;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: .4s;
+    }
+
+    .slider:before {
+        background-color: white;
+        bottom: 4px;
+        content: "";
+        height: 26px;
+        left: 4px;
+        position: absolute;
+        transition: .4s;
+        width: 26px;
+    }
+
+    input:checked + .slider {
+        background-color: #66bb6a; /* Green for dark mode */
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+
+    .embed-responsive {
+        position: relative;
+        display: block;
+        width: 100%;
+        padding: 0;
+        overflow: hidden;
+    }
+
     </style>
 
 @section('content')
     <div class="row">
+
+
+
+
         <!-- Total Members Card -->
         <div class="col-md-3">
             <div class="card text-center">
@@ -262,6 +351,35 @@
 
 
 
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Watch Live Streams of Other Men of God</h5>
+        </div>
+        <div class="card-body">
+            <div class="embed-responsive embed-responsive-16by9">
+                <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/live_stream?channel=UCTj7Cw307CYufcKLLizh4MA"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+
+
+
+ <!-- Your existing content here -->
+
+ <div class="d-flex justify-content-end mt-4">
+    <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="btn btn-danger">
+        Logout
+    </a>
+
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+</div>
+
     {{-- <div class="row mt-4">
         <div class="col-md-8">
             <div class="card">
@@ -351,5 +469,31 @@
     </div>
 
 
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded and parsed'); // Check if this logs in your console
+
+            const themeToggle = document.getElementById('theme-toggle');
+            if (!themeToggle) {
+                console.error('Theme toggle element not found!');
+                return;
+            }
+
+            let currentTheme = localStorage.getItem('theme') || 'light';
+
+            // Apply the saved theme or default to light
+            document.documentElement.setAttribute('data-theme', currentTheme);
+
+            themeToggle.addEventListener('change', function() {
+                currentTheme = this.checked ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                localStorage.setItem('theme', currentTheme);
+            });
+
+            // Reflect the current theme in the checkbox
+            themeToggle.checked = currentTheme === 'dark';
+        });
+    </script>
 
 @endsection

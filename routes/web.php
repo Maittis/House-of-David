@@ -11,6 +11,9 @@ use App\Http\Controllers\SMSWebhookController;
 use App\Http\Controllers\MemberDashboardController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\InspirationalMessageController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\NotificationController;
+use Illuminate\Support\Facades\Auth;
 
 
 /*
@@ -30,15 +33,35 @@ use App\Http\Controllers\InspirationalMessageController;
         return view('welcome');
     })->middleware('auth');
 
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    });
+
+
+
+    Route::post('/logout', function () {
+        Auth::logout();
+        return redirect('/'); // Redirect to welcome page or wherever you want after logout
+    })->name('logout');
+
 
     // routes/web.php
     Route::get('/', [WelcomeController::class, 'index']);
 
     Route::middleware(['auth'])->group(function () {
         Route::get('/memberArea/video/{id}', [MemberDashboardController::class, 'watchVideo'])->name('memberArea.video.watch');
+
+    });
+
+    Route::middleware(['auth'])->group(function () {
+        Route::resource('posts', PostController::class);
     });
 
 
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+    Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
+    Route::resource('posts', PostController::class);
 
     // routes/web.php
     Route::get('login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
@@ -59,7 +82,7 @@ use App\Http\Controllers\InspirationalMessageController;
 
 
 
-    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'home'])->name('home');
     // Route::get('/', function (){
 
     //     return view ('welcome');
@@ -102,8 +125,9 @@ use App\Http\Controllers\InspirationalMessageController;
     // Route::post('send-sms-to-absent/{serviceId}', [AdminController::class, 'sendSMStoAbsentMembersForService'])->name('admin.send.sms.to.absent.for.service');
 
     Route::get('/admin/absent-members/{serviceId}', [AdminController::class, 'getAbsentMembersForService'])->name('admin.absent.members.for.service');
-    Route::get('/attendance', [AdminController::class, 'index'])->name('admin.attendance.index');
-    Route::post('/attendance', [AdminController::class, 'store'])->name('admin.attendance.store');
+    // Route::get('/attendance', [AdminController::class, 'index'])->name('admin.attendance.index');
+    Route::post('/admin/attendance', [AdminController::class, 'storeAttendance'])->name('admin.attendance.store');
+    Route::get('/admin/attendance', [AdminController::class, 'index'])->name('admin.attendance.index');
     // Route::post('/attendance/sms', [AdminController::class, 'sendSms'])->name('admin.attendance.sms');
     Route::get('/admin/attendance/absent', [AdminController::class, 'absentMembers'])->name('admin.attendance.absent');
     // Route::post('/admin/attendance/absent/sms', [AdminController::class, 'sendAbsentSMS'])->name('admin.attendance.absent.sms');
@@ -115,6 +139,8 @@ use App\Http\Controllers\InspirationalMessageController;
     Route::middleware('web')->post('/webhook/twilio', [AdminController::class, 'storeReply']);
 
     Route::post('/webhook/twilio', [AdminController::class, 'storeReply']);
+
+
 
 
     Route::post('/admin/attendance/sms', [AttendanceController::class, 'sendSms'])->name('attendance.sms');
@@ -147,6 +173,7 @@ use App\Http\Controllers\InspirationalMessageController;
 
     Route::get('/admin/inquiries', [AdminController::class, 'showInquiries'])->name('admin.inquiries');
     Route::post('/admin/reply-inquiry/{id}', [AdminController::class, 'replyInquiry'])->name('admin.replyInquiry');
+    Route::post('/admin/inquiries/{inquiry}/reply', [InquiryController::class, 'storeReply'])->name('admin.replyInquiry');
     // Route::post('/admin/inquiries/reply/{id}', [AdminController::class, 'replyInquiry'])->name('admin.reply-inquiry');
     // Route::get('/memberArea/dboard', [MemberDashboardController::class, 'memberAreadboard'])->middleware('auth');
     Route::get('/memberArea/dboard', [MemberDashboardController::class, 'memberDashboard'])->middleware('auth');
@@ -157,8 +184,8 @@ use App\Http\Controllers\InspirationalMessageController;
 
     Route::post('/send-inspiration', [InspirationalMessageController::class, 'send'])->name('admin.send-inspiration');
     Route::get('/admin/inspirational-messages', [InspirationalMessageController::class, 'index'])->name('admin.inspirational_messages');
-
-
+    Route::delete('/admin/inquiries/{inquiry}', [InquiryController::class, 'destroy'])->name('admin.deleteInquiry');
+    Route::get('/send-sms/{phone}/{message}', [NotificationController::class, 'sendSMS']);
 
 });
 

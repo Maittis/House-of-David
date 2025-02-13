@@ -11,10 +11,10 @@
             <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $member->name) }}" required>
         </div>
 
-        <div class="form-group">
+        {{-- <div class="form-group">
             <label for="email">Email</label>
             <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $member->email) }}" required>
-        </div>
+        </div> --}}
 
         <div class="form-group">
             <label for="phone">Phone</label>
@@ -26,13 +26,13 @@
             <textarea class="form-control" id="address" name="address" rows="3">{{ old('address', $member->address) }}</textarea>
         </div> --}}
 
-        <div class="form-group">
+        {{-- <div class="form-group">
             <label for="status">Status</label>
             <select class="form-control" id="status" name="status">
                 <option value="active" {{ $member->status == 'active' ? 'selected' : '' }}>Active</option>
                 <option value="inactive" {{ $member->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
             </select>
-        </div>
+        </div> --}}
 
         <!-- Add any other fields you wish to edit here -->
 

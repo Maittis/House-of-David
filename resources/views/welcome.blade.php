@@ -19,7 +19,7 @@
             background-image: linear-gradient(
                 rgba(0, 0, 0, 0.6),
                 rgba(0, 0, 0, 0.6)
-            ), url('/images/house of david 4.jpg'); /* Replace with your image */
+            ), url('/images/Front1.jpg'); /* Replace with your image */
             background-size: cover;
             background-position: center;
             height: 60vh;
@@ -32,19 +32,19 @@
 
         .post-card {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .post-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
         .post-title {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: #1a202c;
             transition: color 0.3s ease;
@@ -57,7 +57,7 @@
         .pagination-link {
             padding: 0.5rem 1rem;
             margin: 0 0.25rem;
-            border-radius: 4px;
+            border-radius: 8px;
             color: white;
             background-color: #e53e3e;
             transition: all 0.3s ease;
@@ -72,46 +72,60 @@
     <div class="min-h-screen">
         <!-- Navigation -->
         @if (Route::has('login'))
-        <div class="p-6 text-right">
+        <nav class="bg-gray-800 p-6 text-right">
             @auth
-            <a href="{{ url('/home') }}" class="text-lg font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Home</a>
+            {{-- <a href="{{ url('/home') }}" class="text-lg font-semibold text-gray-300 hover:text-white mx-4">Home</a> --}}
+            <a href="{{ route('posts.create') }}" class="text-lg font-semibold text-gray-300 hover:text-white">Create Post</a>
             @else
-            <a href="{{ route('login') }}" class="text-lg font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Log in</a>
+            <a href="{{ route('login') }}" class="text-lg font-semibold text-gray-300 hover:text-white mx-4">Log in</a>
             @if (Route::has('register'))
-            <a href="{{ route('register') }}" class="ml-4 text-lg font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Register</a>
+            <a href="{{ route('register') }}" class="text-lg font-semibold text-gray-300 hover:text-white">Register</a>
             @endif
             @endauth
-        </div>
+        </nav>
         @endif
 
         <!-- Header Section -->
-        <div class="parish-header">
+        <header class="parish-header">
             <div class="text-center">
-                <h1 class="text-4xl md:text-6xl font-bold">Welcome to House of David Parish</h1>
+                <h1 class="text-5xl md:text-7xl font-bold">Welcome to House of David Parish</h1>
                 <p class="mt-4 text-lg md:text-xl font-medium">"Transforming Lives Through Worship and Service"</p>
             </div>
-        </div>
+        </header>
 
-        <!-- Posts Section -->
-        {{-- <div class="container mx-auto px-6 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach($posts as $post)
-                <div class="post-card p-6">
-                    <h2 class="post-title mb-2">{{ $post->title }}</h2>
-                    <p class="text-sm text-gray-500 mb-4">{{ $post->created_at->format('F j, Y') }}</p>
-                    <p class="text-gray-700 dark:text-gray-300 mb-4">
-                        {{ substr($post->content, 0, 150) }}{{ strlen($post->content) > 150 ? '...' : '' }}
-                    </p>
-                    <a href="{{ route('post.show', $post->id) }}" class="text-red-500 font-semibold hover:text-red-700">Read More →</a>
+       <!-- Posts Section -->
+<div class="container mx-auto px-6 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @if(isset($posts))
+            @foreach($posts as $post)
+            <div class="post-card p-6">
+                <h2 class="post-title mb-3">{{ $post->title }}</h2>
+                <p class="text-sm text-gray-500 mb-3">{{ $post->created_at->format('F j, Y') }}</p>
+                <p class="text-gray-700 dark:text-gray-300 mb-4">
+                    {{ substr($post->content, 0, 150) }}{{ strlen($post->content) > 150 ? '...' : '' }}
+                </p>
+                <div class="flex justify-between items-center">
+                    <a href="{{ route('posts.show', $post->id) }}" class="text-red-500 font-semibold hover:text-red-700">Read More →</a>
+                    @auth
+                    <div class="space-x-2">
+                        <a href="{{ route('posts.edit', $post->id) }}" class="text-blue-500 hover:text-blue-700">Edit</a>
+                        <form action="{{ route('posts.destroy', $post->id) }}" method="POST" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to delete this post?')">Delete</button>
+                        </form>
+                    </div>
+                    @endauth
                 </div>
-                @endforeach
-            </div> --}}
-
-
-
-
-            <!-- Pagination -->
-            {{-- <div class="mt-8 flex justify-center">
+            </div>
+            @endforeach
+        @else
+            <p class="text-center text-gray-600 dark:text-gray-400 py-10">No posts available.</p>
+        @endif
+    </div>
+</div>
+            {{-- <!-- Pagination -->
+            <div class="mt-8 flex justify-center">
                 {{ $posts->links('pagination::tailwind') }}
             </div>
         </div> --}}

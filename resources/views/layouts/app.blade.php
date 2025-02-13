@@ -30,12 +30,12 @@
 @endif
 
 
-<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f2f791; border-bottom: 2px solid #ddd;">
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #afed5d; border-bottom: 2px solid #ffffff;">
     <div class="container">
         <!-- Brand Logo -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}">
             <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 60px; margin-right: 10px;">
-            <span style="font-size: 1.5rem; font-weight: bold; color: #ff4d00;">Admin Panel</span>
+            <span style="font-size: 1.5rem; font-weight: bold; color: #ffffff;">Admin Panel</span>
         </a>
         <!-- Toggle Button for Mobile View -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,14 +53,11 @@
                 <li class="nav-item">
                     <a class="nav-link text-primary fw-semibold" href="{{ route('admin.attendance.index') }}">Attendance</a>
                 </li>
-                {{-- <li class="nav-item">
-                    <a class="nav-link text-primary fw-semibold" href="{{ route('admin.attendance.absent') }}">Absent Members</a>
-                </li> --}}
                 <li class="nav-item">
                     <a class="nav-link text-primary fw-semibold" href="{{ route('admin.inquiries') }}">Inquiries</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.inspirational_messages') }}">Inspirational Messages</a>
+                    <a class="nav-link text-primary fw-semibold" href="{{ route('admin.inspirational_messages') }}">Inspirational Messages</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-primary fw-semibold" href="{{ route('admin.followup.index') }}">Follow Up Team</a>
@@ -68,8 +65,16 @@
             </ul>
         </div>
     </div>
-</nav>
 
+
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="theme-toggle">
+            <input type="checkbox" id="theme-toggle">
+            <div class="slider round"></div>
+        </label>
+        <span>Dark Mode</span>
+    </div>
+</nav>
 
 <div class="container mt-4">
     <div class="row">
@@ -86,7 +91,7 @@
                 data-adapt-container-width="true"
                 data-hide-cover="false"
                 data-show-facepile="true">
-                <blockquote cite="YOUR_FACEBOOK_PAGE_URL" class="fb-xfbml-parse-ignore"><a href="YOUR_FACEBOOK_PAGE_URL">House of David Parish</a></blockquote>
+                <blockquote cite="https://web.facebook.com/Past332" class="fb-xfbml-parse-ignore"><a href="https://web.facebook.com/Past332">House of David Parish</a></blockquote>
             </div>
         </div>
     </div>

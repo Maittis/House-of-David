@@ -18,11 +18,18 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
+
+
+
     /**
      * Bootstrap any application services.
      */
     public function boot(): void
     {
+
+        $this->app->bind(TwilioSMSService::class, function ($app) {
+            return new TwilioSMSService();
+        });
         Paginator::useBootstrap(); // Enables Bootstrap-compatible pagination links
     }
 }

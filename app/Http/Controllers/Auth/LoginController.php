@@ -3,59 +3,47 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Log; // Added the missing Log facade import
+use Illuminate\Support\Facades\Auth;
+
+
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
-    use AuthenticatesUsers;
-
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/'; // Redirect to root after login, which will show the welcome page
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    // Other methods...
+    public function showLoginForm()
     {
-        $this->middleware('guest')->except('logout');
-        $this->middleware('auth')->only('logout');
+        return view('auth.login');
     }
 
-    /**
-     * Handle a login request to the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    protected function authenticated(Request $request, $user)
+
+
+    public function login(Request $request)
     {
-        try {
-            Session::regenerate();
-            Log::info('Session regenerated successfully for user: ' . $user->name);
-        } catch (\Exception $e) {
-            Log::error('Session regeneration failed: ' . $e->getMessage());
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            if (auth()->user()->hasRole('admin')) {
+                return redirect()->intended('/admin/dashboard');
+            }
+            return redirect()->intended('/admin/dboard'); // or wherever non-admins should go
         }
-        return redirect($this->redirectTo);
+
+        // Handle login failure
+        return back()->withErrors([
+            'email' => 'These credentials do not match our records.',
+        ])->withInput();
+    }
+
+
+
+
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/'); // Or wherever you want to redirect after logout
     }
 }

@@ -9,22 +9,28 @@ use App\Models\Inquiry;
 
 class MemberDashboardController extends Controller
 {
+
+
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
-         // Fetch the latest 5 inspirational messages
-    $inspirationalMessages = InspirationalMessage::latest()->take(5)->get();
-    $userId = auth()->id();
-    $inquiries = Inquiry::where('user_id', $userId)->latest()->get();
+        // Fetch the latest 5 inspirational messages
+        $inspirationalMessages = InspirationalMessage::latest()->take(5)->get();
+
+        // Fetch member's inquiries with their replies
+        $userId = auth()->id();
+        $inquiries = Inquiry::where('user_id', $userId)->with('reply')->latest()->get();
+
         // Fetch latest videos, messages, etc.
         $videos = Video::latest()->paginate(10);
         $messages = InspirationalMessage::latest()->paginate(5);
-        return view('memberArea.dboard', compact(
 
-
-            'videos', 'messages',
-            'inquiries',
-
-        ));
+        return view('memberArea.dboard', compact('videos', 'messages', 'inquiries', 'inspirationalMessages'));
     }
 
     public function watchVideo($id)
@@ -35,7 +41,11 @@ class MemberDashboardController extends Controller
     }
 
 
-
+    public function memberInquiries()
+    {
+        $inquiries = Inquiry::where('user_id', auth()->id())->with('reply')->latest()->get();
+        return view('memberArea.dboard', compact('inquiries'));
+    }
 
 
 

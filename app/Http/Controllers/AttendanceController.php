@@ -13,11 +13,12 @@ class AttendanceController extends Controller
 {
     protected $smsService;
 
-    public function twiliosendSms($to, $message)
+    public function twiliosendSms($to, $message, TwilioSMSService $smsService)
     {
-        // $this->smsService = $smsService;
+        // Now $smsService is injected or passed as a parameter
+        $this->smsService = $smsService;
+        return $this->smsService->twiliosendSms($to, $message);
     }
-
     public function sendSms(Request $request)
     {
         if ($request->has('member_id')) {
@@ -48,7 +49,11 @@ class AttendanceController extends Controller
 
             foreach ($absentMembers as $member) {
                 try {
-                    $this->smsService->sendSMS($member->mobile_number, $request->sms_message);
+                    if ($this->smsService) {
+                        $this->smsService->sendSMS($member->mobile_number, $request->sms_message);
+                    } else {
+                        Log::error("SMS Service is not available for member: {$member->mobile_number}");
+                    }
                 } catch (\Exception $e) {
                     // Log errors for individual members
                     Log::error("Failed to send SMS to {$member->mobile_number}: {$e->getMessage()}");
@@ -60,6 +65,11 @@ class AttendanceController extends Controller
 
         return redirect()->back()->with('error', 'No valid data provided for sending SMS.');
     }
+
+
+
+
+
 
     public function showAbsentMembers($serviceId)
     {

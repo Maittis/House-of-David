@@ -27,12 +27,12 @@ class AdminController extends Controller
 
 
 
-    // protected $twilioSMSService;
+    protected $twilioSMSService;
 
-    // public function __construct(TwilioSMSService $twilioSMSService)
-    // {
-    //     $this->twilioSMSService = $twilioSMSService;
-    // }
+    public function __construct(TwilioSMSService $twilioSMSService)
+    {
+        $this->twilioSMSService = $twilioSMSService;
+    }
 
 
 
@@ -274,6 +274,9 @@ class AdminController extends Controller
 
 
 
+
+
+
     public function index()
     {
         $totalMembers = Member::count();
@@ -417,39 +420,39 @@ public function viewAbsentMembersForService($serviceId)
 }
 
 
-// public function sendSms(Request $request)
-//     {
-//         if ($request->has('member_id')) {
-//             $member = Member::findOrFail($request->input('member_id'));
-//             $message = "Dear {$member->name}, we noticed you missed today's service. We hope to see you soon!";
+public function sendSms(Request $request)
+    {
+        if ($request->has('member_id')) {
+            $member = Member::findOrFail($request->input('member_id'));
+            $message = "Dear {$member->name}, we noticed you missed today's service. We hope to see you soon!";
 
-//             if ($this->twilioSMSService->twiliosendSms($member->mobile_number, $message)) {
-//                 return redirect()->route('admin.attendance.index')->with('success', 'SMS sent successfully!');
-//             }
-//             return redirect()->back()->with('error', 'Failed to send SMS.');
-//         }
+            if ($this->twilioSMSService->twiliosendSms($member->mobile_number, $message)) {
+                return redirect()->route('admin.attendance.index')->with('success', 'SMS sent successfully!');
+            }
+            return redirect()->back()->with('error', 'Failed to send SMS.');
+        }
 
-//         if ($request->has('sms_message')) {
-//             $request->validate(['sms_message' => 'required|string|max:160']);
+        if ($request->has('sms_message')) {
+            $request->validate(['sms_message' => 'required|string|max:160']);
 
-//             $defaultService = Service::first();
-//             if (!$defaultService) {
-//                 return redirect()->back()->with('error', 'No default service found.');
-//             }
+            $defaultService = Service::first();
+            if (!$defaultService) {
+                return redirect()->back()->with('error', 'No default service found.');
+            }
 
-//             $absentMembers = Member::whereDoesntHave('attendances', function ($query) use ($defaultService) {
-//                 $query->where('service_id', $defaultService->id)->whereDate('date', today());
-//             })->get();
+            $absentMembers = Member::whereDoesntHave('attendances', function ($query) use ($defaultService) {
+                $query->where('service_id', $defaultService->id)->whereDate('date', today());
+            })->get();
 
-//             foreach ($absentMembers as $member) {
-//                 $this->twilioSMSService->twiliosendSms($member->mobile_number, $request->sms_message);
-//             }
+            foreach ($absentMembers as $member) {
+                $this->twilioSMSService->twiliosendSms($member->mobile_number, $request->sms_message);
+            }
 
-//             return redirect()->route('admin.attendance.absent')->with('success', 'SMS sent to absent members!');
-//         }
+            return redirect()->route('admin.attendance.absent')->with('success', 'SMS sent to absent members!');
+        }
 
-//         return redirect()->back()->with('error', 'No valid data provided for SMS.');
-//     }
+        return redirect()->back()->with('error', 'No valid data provided for SMS.');
+    }
 
 
 
@@ -530,27 +533,27 @@ public function sendAbsentSMS(Request $request)
 
 
 
-public function storeReply(Request $request)
-{
-    // Extract data from Twilio webhook
-    $data = $request->all();
-    $from = $data['From']; // Sender's phone number
-    $body = $data['Body']; // Message content
+// public function storeReply(Request $request)
+// {
+//     // Extract data from Twilio webhook
+//     $data = $request->all();
+//     $from = $data['From']; // Sender's phone number
+//     $body = $data['Body']; // Message content
 
-    // Find the member by their mobile number
-    $member = Member::where('mobile_number', $from)->first();
+//     // Find the member by their mobile number
+//     $member = Member::where('mobile_number', $from)->first();
 
-    if ($member) {
-        // Save the reply in the database
-        SmsReply::create([
-            'member_id' => $member->id,
-            'message' => $body,
-        ]);
-    }
+//     if ($member) {
+//         // Save the reply in the database
+//         SmsReply::create([
+//             'member_id' => $member->id,
+//             'message' => $body,
+//         ]);
+//     }
 
-    // Return a response to Twilio
-    return response()->json(['status' => 'success']);
-}
+//     // Return a response to Twilio
+//     return response()->json(['status' => 'success']);
+// }
 
 
 
@@ -593,21 +596,26 @@ public function sendWelcomeMessage($id)
 
 
 
-    public function replyInquiry(Request $request, $id)
+    public function replyInquiry(Request $request, Inquiry $inquiry)
+    {
+        $request->validate([
+            'reply' => 'required|string',
+        ]);
+
+        $inquiry->reply()->create([
+            'reply' => $request->input('reply'),
+        ]);
+
+        return redirect()->back()->with('success', 'Reply sent successfully.');
+    }
+
+public function deleteInquiry($id)
 {
-    $request->validate([
-        'reply' => 'required|string|max:1000',
-    ]);
+    $inquiry = Inquiry::findOrFail($id); // Fetch the inquiry
+    $inquiry->delete(); // Delete the inquiry
 
-    InquiryReply::create([
-        'inquiry_id' => $id,
-        'reply' => $request->reply,
-    ]);
-
-    return redirect()->back()->with('success', 'Reply sent successfully.');
+    return redirect()->back()->with('success', 'Inquiry deleted successfully.');
 }
-
-
 
 // public function sendInspiration(Request $request)
 // {

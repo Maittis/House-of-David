@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('inquiry_replies', function (Blueprint $table) {
+        Schema::create('replies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('inquiry_id')->constrained('inquiries')->onDelete('cascade');
+            $table->unsignedBigInteger('inquiry_id');
+            $table->foreign('inquiry_id')->references('id')->on('inquiries')->onDelete('cascade');
             $table->text('reply');
             $table->timestamps();
         });

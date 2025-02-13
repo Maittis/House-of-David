@@ -11,12 +11,9 @@ class Post extends Model
     // protected $table = 'your_table_name';
 
     // Fillable attributes for mass assignment protection
-    protected $fillable = [
-        'title',
-        'content',
-        'created_at',
-        // Add any other fields you need
-    ];
+    protected $fillable = ['title', 'content', 'image_path'];
+
+
 
     // Optional: If you want to automatically manage timestamps
     public $timestamps = true;
