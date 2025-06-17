@@ -13,7 +13,10 @@ class RedirectIfAuthenticated
     /**
      * Handle an incoming request.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  string  ...$guards
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {
@@ -21,7 +24,24 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                $user = Auth::guard($guard)->user();
+
+          // Ensure $user uses Spatie's HasRoles trait
+if (method_exists($user, 'hasRole') && $user instanceof \Spatie\Permission\Traits\HasRoles) {
+    if ($user->hasRole('superadmin')) {
+        return redirect('/superadmin/dashboard');
+    }
+    if ($user->hasRole('admin')) {
+        return redirect('/admin/dashboard');
+    }
+    if ($user->hasRole('usher')) {
+        return redirect('/usher/dashboard');
+    }
+}
+
+
+                // Default redirect for authenticated users without specific roles
+                return redirect(RouteServiceProvider::HOME); // More consistent and configurable
             }
         }
 

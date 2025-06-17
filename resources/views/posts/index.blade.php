@@ -1,4 +1,4 @@
-<!-- resources/views/posts/index.blade.php -->
+{{-- <!-- resources/views/posts/index.blade.php -->
 
 @extends('layouts.auth')  <!-- Replace with your base layout -->
 
@@ -32,4 +32,4 @@
 
         {{ $posts->links() }}
     </div>
-@endsection
+@endsection --}}

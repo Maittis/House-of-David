@@ -12,7 +12,9 @@ class Member extends Model
     protected $fillable = [
         'name',
         'mobile_number',
+        'age',
         'last_attendance',
+        'gender',
     ];
 
     // Automatically cast last_attendance as a date

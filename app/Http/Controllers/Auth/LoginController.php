@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-
-
 class LoginController extends Controller
 {
     // Other methods...
@@ -16,17 +14,24 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-
-
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            if (auth()->user()->hasRole('admin')) {
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            if ($user->hasRole('superadmin')) {
+                return redirect()->intended('/superadmin/dashboard');
+            }
+            if ($user->hasRole('admin')) {
                 return redirect()->intended('/admin/dashboard');
             }
-            return redirect()->intended('/admin/dboard'); // or wherever non-admins should go
+            if ($user->hasRole('usher')) {
+                return redirect()->intended('/usher/dashboard');
+            }
+            // Default redirect for other roles or no role
+            return redirect()->intended('/home');
         }
 
         // Handle login failure
@@ -34,10 +39,6 @@ class LoginController extends Controller
             'email' => 'These credentials do not match our records.',
         ])->withInput();
     }
-
-
-
-
 
     public function logout(Request $request)
     {

@@ -16,11 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->string('mobile_number')->unique();
             $table->date('last_attendance')->nullable();
-            $table->dateTime('last_attendance')->nullable();
             // $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
-
     }
 
     /**

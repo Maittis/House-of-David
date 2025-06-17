@@ -10,8 +10,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="text" class="form-control" id="name" name="name" required>
+            <label for="age" class="form-label">Age</label>
+            <input type="number" class="form-control" id="age" name="age" min="0" required>
         </div>
 
         <div class="mb-3">

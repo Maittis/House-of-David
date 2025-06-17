@@ -1,4 +1,4 @@
-@extends('layouts.auth')
+{{-- @extends('layouts.auth')
 
 @section('content')
     <div class="container">
@@ -17,4 +17,4 @@
         </form>
         <a href="{{ route('posts.index') }}" class="btn btn-secondary">Back</a>
     </div>
-@endsection
+@endsection --}}

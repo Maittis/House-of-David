@@ -2,6 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UsherCollectionController;
+
+use App\Http\Controllers\DonationController;
+use App\Http\Controllers\CollectionController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +23,16 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+Route::post('/donations/verify-qr', [DonationController::class, 'verifyQrPayment'])
+    ->middleware('auth:sanctum');
+
+
+
+
+Route::post('/public-collections', [CollectionController::class, 'storePublicCollection']);
+Route::post('/usher-login', [CollectionController::class, 'usherLogin']);
+Route::post('/usher-collections', [CollectionController::class, 'storeUsherCollection']);
+Route::post('/admin-login', [CollectionController::class, 'adminLogin']);
+Route::get('/admin/reports', [CollectionController::class, 'fetchUsherCollections']);

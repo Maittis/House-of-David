@@ -12,138 +12,103 @@
         <div class="card-body">
             <form action="{{ route('admin.attendance.store') }}" method="POST">
                 @csrf
-                <form action="{{ route('admin.attendance.store') }}" method="POST">
-                    @csrf
-                    <div class="form-group mb-3">
-                        <label for="member_search" class="form-label">Search Member:</label>
-                        <input type="text" class="form-control" id="member_search" placeholder="Search for member...">
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="form-label">Select Members:</label>
-                        @foreach ($members as $member)
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="member_ids[]" value="{{ $member->id }}">
-                                <label class="form-check-label" for="member_{{ $member->id }}">{{ $member->name }}</label>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label for="service_id" class="form-label">Service:</label>
-                        <select name="service_id" id="service_id" class="form-select" required>
-                            <option value="{{ $defaultService->id }}" selected>{{ $defaultService->name }}</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Mark Attendance</button>
-                </form>
-
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $members->links() }}
+                <div class="form-group mb-3">
+                    <label for="member_search" class="form-label">Search Member:</label>
+                    <input type="text" class="form-control" id="member_search" placeholder="Search for member...">
                 </div>
 
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        var searchInput = document.getElementById('member_search');
-                        var checkboxes = document.querySelectorAll('.form-check-input');
+                <div class="form-group mb-3">
+                    <label class="form-label">Select Members:</label>
+                    @foreach ($members as $member)
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="member_ids[]" value="{{ $member->id }}">
+                            <label class="form-check-label" for="member_{{ $member->id }}">{{ $member->name }}</label>
+                        </div>
+                    @endforeach
+                </div>
+<div class="form-group mb-4">
+    <label for="service_id" class="form-label">Service:</label>
+    <select name="service_id" id="service_id" class="form-select" required>
+        <option value="" disabled selected>Select a service</option>
+        @forelse($services ?? [] as $service)
+            <option 
+                value="{{ $service->id }}" 
+                {{ ($defaultService && $defaultService->id == $service->id) ? 'selected' : '' }}
+            >
+                {{ $service->name }}
+            </option>
+        @empty
+            <option value="" disabled>No services available</option>
+        @endforelse
+    </select>
+    @error('service_id')
+        <div class="text-danger">{{ $message }}</div>
+    @enderror
+</div>
 
-                        searchInput.addEventListener('input', function() {
-                            var filter = searchInput.value.toLowerCase();
-                            Array.from(checkboxes).forEach(function(checkbox) {
-                                var label = checkbox.nextElementSibling;
-                                if (label.textContent.toLowerCase().includes(filter)) {
-                                    checkbox.parentElement.style.display = "";
-                                } else {
-                                    checkbox.parentElement.style.display = "none";
-                                }
-                            });
-                        });
-                    });
-                </script>
+                <button type="submit" class="btn btn-primary w-100">Mark Attendance</button>
+            </form>
+
+            <div class="d-flex justify-content-center mt-3">
+                {{ $members->links() }}
+            </div>
         </div>
     </div>
 
     {{-- Present Members --}}
-    <form method="GET" action="{{ route('admin.attendance.index') }}" class="mb-3">
-        <div class="input-group">
-            <input type="text" name="search" class="form-control" placeholder="Search members by name..." value="{{ request('search') }}">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
-    </form>
-
-<div class="card mb-5 shadow-sm">
-    <div class="card-header bg-success text-white">
-        <h2 class="mb-0">Present Members for {{ $defaultService->name }}</h2>
-    </div>
-    <div class="card-body">
-        @if ($presentMembers->isEmpty())
-            <p class="text-center text-muted">No members have been marked as present today.</p>
-        @else
-            <table class="table table-striped table-hover">
-                <thead class="table-success">
-                    <tr>
-                        <th>Name</th>
-                        <th>Mobile Number</th>
-                        <td>Email</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($presentMembers as $member)
-                        <tr>
-                            <td>{{ $member->name }}</td>
-                            <td>{{ $member->mobile_number }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            {{-- Pagination Links --}}
-            <div class="d-flex justify-content-center mt-3">
-                {{ $presentMembers->links() }}
-            </div>
-        @endif
-    </div>
-</div>
-
-
-    {{-- Absent Members
+    @if($defaultService)
     <div class="card mb-5 shadow-sm">
-        <div class="card-header bg-danger text-white">
-            <h2 class="mb-0">Absent Members for {{ $defaultService->name }}</h2>
+        <div class="card-header bg-success text-white">
+            <h2 class="mb-0">Present Members for {{ $defaultService->name }}</h2>
         </div>
         <div class="card-body">
-            @if ($absentMembers->isEmpty())
-                <p class="text-center text-muted">All members have attended today. 🎉</p>
+            @if ($presentMembers->isEmpty())
+                <p class="text-center text-muted">No members have been marked as present today.</p>
             @else
                 <table class="table table-striped table-hover">
-                    <thead class="table-danger">
+                    <thead class="table-success">
                         <tr>
                             <th>Name</th>
                             <th>Mobile Number</th>
-                            <th>Last Attendance</th>
-                            <th>Action</th>
+                            <th>Email</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($absentMembers as $member)
+                        @foreach ($presentMembers as $member)
                             <tr>
                                 <td>{{ $member->name }}</td>
                                 <td>{{ $member->mobile_number }}</td>
-                                <td>{{ $member->last_attendance ? \Carbon\Carbon::parse($member->last_attendance)->format('Y-m-d') : 'Never' }}</td>
-                                <td>
-                                    <form action="{{ route('admin.attendance.sms') }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        <input type="hidden" name="member_id" value="{{ $member->id }}">
-                                        <button type="submit" class="btn btn-warning btn-sm">Send SMS</button>
-                                    </form>
-                                </td>
+                                <td>{{ $member->email }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+
+                <div class="d-flex justify-content-center mt-3">
+                    {{ $presentMembers->links() }}
+                </div>
             @endif
         </div>
-    </div> --}}
+    </div>
+    @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var searchInput = document.getElementById('member_search');
+        var checkboxes = document.querySelectorAll('.form-check-input');
+
+        searchInput.addEventListener('input', function() {
+            var filter = searchInput.value.toLowerCase();
+            Array.from(checkboxes).forEach(function(checkbox) {
+                var label = checkbox.nextElementSibling;
+                if (label.textContent.toLowerCase().includes(filter)) {
+                    checkbox.parentElement.style.display = "";
+                } else {
+                    checkbox.parentElement.style.display = "none";
+                }
+            });
+        });
+    });
+</script>
 @endsection

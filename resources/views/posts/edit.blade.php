@@ -1,4 +1,4 @@
-@extends('layouts.auth')
+{{-- @extends('layouts.auth')
 
 @section('content')
     <div class="container">
@@ -17,4 +17,4 @@
             <button type="submit" class="btn btn-primary">Update</button>
         </form>
     </div>
-@endsection
+@endsection --}}

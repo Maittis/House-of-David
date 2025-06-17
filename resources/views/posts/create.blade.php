@@ -1,4 +1,4 @@
-@extends('layouts.auth')
+{{-- @extends('layouts.auth')
 
 @section('content')
     <div class="container">
@@ -55,4 +55,4 @@
     .form-control:focus, .btn:focus {
         box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
-</style>
+</style> --}}

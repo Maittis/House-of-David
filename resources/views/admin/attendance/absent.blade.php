@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+
+
+
+<div class="mb-3 text-center">
+    <button type="button" class="btn btn-primary" id="generateWeeklyReport">Generate Weekly Report</button>
+    <button type="button" class="btn btn-secondary" id="generateMonthlyReport">Generate Monthly Report</button>
+</div>
+
+
+
 <div class="container">
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-danger text-white p-3">
@@ -16,6 +26,15 @@
                     <div class="form-group">
                         <label for="sms_message" class="form-label">Compose SMS:</label>
                         <textarea name="sms_message" id="sms_message" class="form-control" rows="4" placeholder="Enter your message here..." required></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="sms_provider">SMS Provider:</label>
+                        <select name="provider" id="sms_provider" class="form-control" required>
+                            <option value="twilio">Twilio</option>
+                            <option value="textme">TextMe</option>
+                            <option value="pingme">PingMe</option>
+                            <option value="pingme">Whatsapp</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block">Send SMS to All Absent Members</button>
                 </form>
@@ -44,6 +63,7 @@
                                         <form action="{{ route('admin.attendance.sms') }}" method="POST" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="member_id" value="{{ $member->id }}">
+                                            <input type="hidden" name="provider" value="twilio">
                                             <button type="submit" class="btn btn-warning btn-sm">Send SMS</button>
                                         </form>
                                     </td>
@@ -63,4 +83,19 @@
         </div>
     </div>
 </div>
+
+
+
+
+<script>
+    document.getElementById('generateWeeklyReport').addEventListener('click', function() {
+        window.location.href = "{{ route('admin.attendance.report', ['type' => 'weekly']) }}";
+    });
+
+    document.getElementById('generateMonthlyReport').addEventListener('click', function() {
+        window.location.href = "{{ route('admin.attendance.report', ['type' => 'monthly']) }}";
+    });
+</script>
+
+
 @endsection

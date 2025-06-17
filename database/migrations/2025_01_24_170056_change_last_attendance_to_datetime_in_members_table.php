@@ -9,17 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+   public function up()
 {
     Schema::table('members', function (Blueprint $table) {
-        $table->timestamp('last_attendance')->nullable()->change();
+        // Change from timestamp to datetime
+        $table->dateTime('last_attendance')->nullable()->change();
     });
 }
 
 public function down()
 {
     Schema::table('members', function (Blueprint $table) {
-        $table->string('last_attendance')->nullable()->change();
+        // Revert back to timestamp if needed
+        $table->timestamp('last_attendance')->nullable()->change();
     });
 }
 };

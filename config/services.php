@@ -34,8 +34,23 @@ return [
 
 'twilio' => [
         'sid' => env('TWILIO_SID'),
-        'token' => env('TWILIO_TOKEN'), // Make sure this matches your .env variable name
+        'token' => env('TWILIO_TOKEN'),
         'from' => env('TWILIO_FROM'),
+    ],
+
+    'textme' => [
+        'api_key' => env('TEXTME_API_KEY'),
+        'from' => env('TEXTME_FROM'),
+    ],
+
+    'pingme' => [
+        'api_key' => env('PINGME_API_KEY'),
+        'from' => env('PINGME_FROM'),
+    ],
+
+    'whatsapp' => [
+        'api_url' => env('WHATSAPP_API_URL'),
+        'token' => env('WHATSAPP_API_TOKEN'),
     ],
 
 ];

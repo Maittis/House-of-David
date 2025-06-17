@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Post extends Model
 {
@@ -11,9 +12,7 @@ class Post extends Model
     // protected $table = 'your_table_name';
 
     // Fillable attributes for mass assignment protection
-    protected $fillable = ['title', 'content', 'image_path'];
-
-
+    protected $fillable = ['title', 'content', 'image_path', 'post_type'];
 
     // Optional: If you want to automatically manage timestamps
     public $timestamps = true;

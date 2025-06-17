@@ -24,6 +24,7 @@
                             <th>#</th>
                             <th>Member Name</th>
                             <th>Reply Message</th>
+                            <th>Provider</th>
                             <th>Received At</th>
                             <th>Action</th>
                         </tr>
@@ -34,6 +35,7 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $reply->member->name }}</td>
                                 <td>{{ $reply->reply_message }}</td>
+                                <td>{{ ucfirst($reply->provider) }}</td>
                                 <td>{{ $reply->created_at->format('Y-m-d H:i:s') }}</td>
                                 <td>
                                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#replyModal{{ $reply->id }}" title="Reply to Message">
@@ -54,6 +56,14 @@
                                                         <div class="form-group">
                                                             <label for="followup_message{{ $reply->id }}">Follow-Up Message:</label>
                                                             <textarea name="followup_message" id="followup_message{{ $reply->id }}" class="form-control" rows="4" placeholder="Enter your follow-up message..." required></textarea>
+                                                        </div>
+                                                        <div class="form-group mt-3">
+                                                            <label for="provider{{ $reply->id }}">SMS Provider:</label>
+                                                            <select name="provider" id="provider{{ $reply->id }}" class="form-control" required>
+                                                                <option value="twilio">Twilio</option>
+                                                                <option value="textme">TextMe</option>
+                                                                <option value="pingme">PingMe</option>
+                                                            </select>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">

@@ -8,23 +8,15 @@ class CreateAttendancesTable extends Migration
 {
     public function up()
     {
-        Schema::create('attendances', function (Blueprint $table) {
-            $table->id(); // Primary key
-
-            // Foreign key linking to services table
-            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
-
-            // Foreign key linking to members table
-            $table->foreignId('member_id')->constrained('members')->onDelete('cascade');
-
-            // Date of attendance
-            $table->date('date');
-
-            $table->timestamps(); // Created and updated timestamps
-
-            // Ensure unique attendance per service, member, and date
-            $table->unique(['service_id', 'member_id', 'date']);
-        });
+        if (!Schema::hasTable('attendances')) {
+            Schema::create('attendances', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('service_id')->nullable();
+                $table->foreignId('member_id')->constrained();
+                $table->date('date');
+                $table->timestamps();
+            });
+        }
     }
 
     public function down()

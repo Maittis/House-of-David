@@ -7,17 +7,20 @@ use Illuminate\Support\Facades\Schema;
 class AddServiceIdToAttendancesTable extends Migration
 {
     public function up()
-    {
+{
+    if (!Schema::hasColumn('attendances', 'service_id')) {
         Schema::table('attendances', function (Blueprint $table) {
-            $table->foreignId('service_id')->after('id')->nullable()->constrained('services')->onDelete('cascade');
+            $table->foreignId('service_id')->nullable()->after('id');
         });
     }
+}
 
-    public function down()
-    {
+public function down()
+{
+    if (Schema::hasColumn('attendances', 'service_id')) {
         Schema::table('attendances', function (Blueprint $table) {
-            $table->dropForeign(['service_id']);
             $table->dropColumn('service_id');
         });
     }
+}
 }
