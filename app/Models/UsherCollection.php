@@ -11,13 +11,10 @@ class UsherCollection extends Model
 
     protected $fillable = [
         'usher_name',
+        'payer_name',
         'date_time',
         'collection_type',
         'amount',
         'signature',
-    ];
-
-    protected $dates = [
-        'date_time',
     ];
 }

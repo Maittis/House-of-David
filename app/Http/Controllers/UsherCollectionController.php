@@ -41,6 +41,7 @@ class UsherCollectionController extends Controller
     {
         $validated = $request->validate([
             'usherName' => 'required|string|max:255',
+            'payerName' => 'required|string|max:255',
             'collectionType' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
             'signatureDataUrl' => 'required|string',
@@ -48,6 +49,7 @@ class UsherCollectionController extends Controller
 
         $collection = new UsherCollection();
         $collection->usher_name = $validated['usherName'];
+        $collection->payer_name = $validated['payerName'];
         $collection->date_time = now();
         $collection->collection_type = $validated['collectionType'];
         $collection->amount = $validated['amount'];

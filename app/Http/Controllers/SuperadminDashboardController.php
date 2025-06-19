@@ -13,7 +13,11 @@ class SuperadminDashboardController extends Controller
     {
         $usherCollections = UsherCollection::all();
 
-        return view('superadmin.dashboard', compact('usherCollections'));
+        $totalTithe = UsherCollection::where('collection_type', 'tithe')->sum('amount');
+        $totalOffering = UsherCollection::where('collection_type', 'offering')->sum('amount');
+        $totalDonations = UsherCollection::where('collection_type', 'donation')->sum('amount');
+
+        return view('superadmin.dashboard', compact('usherCollections', 'totalTithe', 'totalOffering', 'totalDonations'));
     }
 
     public function exportExcel()
