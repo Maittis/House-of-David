@@ -1,8 +1,19 @@
 ---
 deployment:
   tasks:
-    - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader
-    - php artisan config:clear
-    - php artisan config:cache
-    - php artisan migrate --force
+    # 1. Install Composer dependencies (skip dev packages)
+    - /usr/local/bin/php /opt/cpanel/composer/bin/composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
+    # 2. Laravel optimization
+    - /usr/local/bin/php artisan config:clear
+    - /usr/local/bin/php artisan view:clear
+    - /usr/local/bin/php artisan cache:clear
+    - /usr/local/bin/php artisan config:cache
+    - /usr/local/bin/php artisan view:cache
+
+    # 3. Database migrations (only if needed)
+    - /usr/local/bin/php artisan migrate --force
+
+    # 4. Fix permissions (adjust paths as needed)
+    - chmod -R 755 storage bootstrap/cache
+    - chown -R $USER:$USER /home/$USER/public_html
